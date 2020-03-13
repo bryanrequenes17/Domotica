@@ -9,7 +9,7 @@
 
 #define F_CPU 16000000UL
 #include <avr/io.h>
-
+#include <util/delay.h>
 
 #define BAUDRATE 9600
 #define BAUD_PRESCALLER (((F_CPU / (BAUDRATE * 16UL))) - 1)
@@ -18,6 +18,8 @@
 void USART_init(void);
 unsigned char USART_receive(void);
 void USART_send( unsigned char data);
+
+unsigned int tiempoPresentar,tiempoPresentar1;
 
 #define LED PORTA		/* connected LED on PORT pin */
 #define LED1 PORTC		/* connected LED on PORT pin */
@@ -31,15 +33,8 @@ void USART_send( unsigned char data);
 
 int main(void){
 	
-	
-	
-	
-	
-	// -------------------------
-	// Iniciamos el modulo PWM.
-
 	// PWM de 8 bits, fase correcta.
-	// 8 bits nos daran 256 niveles de brillo.
+	// 8 bits 256 niveles de brillo.
 	TCCR0A |= (1<<WGM00);
 
 	// Limpiamos los bits OC0A/OC0B en el comparador.
@@ -54,14 +49,24 @@ int main(void){
 	
 	uint8_t brillo1 = 0;
 	uint8_t brilloz = 20;
-	uint8_t brillo2= 63;
+	uint8_t brillo2=  63;
 	uint8_t brillo3 = 126;
 	uint8_t brillo4 = 189;
 	uint8_t brillo5 = 255;
 	
 	
 	
-	
+	void Wait()
+	{
+		uint8_t i;
+		for(i=0;i<10;i++)
+		{
+			_delay_loop_2(0);
+			_delay_loop_2(0);
+			_delay_loop_2(0);
+		}
+		
+	}
 	
 	
 	
@@ -165,7 +170,7 @@ int main(void){
 			DDRB=(1<<PB5);   //PWM Pins as Out
 			
 			OCR1A=120;   //0 degree
-			
+			Wait();
 			ICR1=0;
 			
 			}else{
@@ -175,7 +180,7 @@ int main(void){
 				
 				ICR1=4999;
 				OCR1A=450;  //90 degree
-				
+				Wait();
 				
 				ICR1=0;
 				
@@ -250,24 +255,23 @@ int main(void){
 			OCR0A = brillo5;
 		}
 		
-		//Next And --VOL
+		//Next
 		if(Data_in =='L')
 		{
 				
-				
-				LED2 &= ~(1<<PK0);	
-				
-				LED2 |= (1<<PK0);	
+				tiempoPresentar++;
+				if (tiempoPresentar==1)
+				{
+					LED2 &= ~(1<<PK0);	/* Turn OFF LED */
+				}
+				if (tiempoPresentar==2)
+				{
+					LED2 |= (1<<PK0);	/* Turn ON LED */
+							tiempoPresentar=0;
 
-		}else
-		
-		if(Data_in =='M')
-		{
-				LED2 |= (1<<PK0);	
-				LED2 &= ~(1<<PK0);	
-				
-				LED2 |= (1<<PK0);	
-			
+					
+				}
+						
 		}
 		
 				
@@ -282,7 +286,8 @@ void USART_init(void){
 	UCSR0C = (1<<USBS0)|(3<<UCSZ00);
 	UBRR0H = (uint8_t)(BAUD_PRESCALLER>>8);
 	UBRR0L = (uint8_t)(BAUD_PRESCALLER);
-	
+	tiempoPresentar=0;
+	tiempoPresentar1=0;
 	
 }
 
