@@ -9,7 +9,7 @@
 
 #define F_CPU 16000000UL
 #include <avr/io.h>
-#include <util/delay.h>
+
 
 #define BAUDRATE 9600
 #define BAUD_PRESCALLER (((F_CPU / (BAUDRATE * 16UL))) - 1)
@@ -18,11 +18,11 @@
 void USART_init(void);
 unsigned char USART_receive(void);
 void USART_send( unsigned char data);
-void USART_putstring(char* StringPtr);
 
-char String[]="Hello world!!";    //String[] is in fact an array but when we put the text between the " " symbols the compiler threats it as a String and automatically puts the null termination character in the end of the text
 #define LED PORTA		/* connected LED on PORT pin */
 #define LED1 PORTC		/* connected LED on PORT pin */
+#define LED2 PORTK		/* connected LED on PORT pin */
+
 // Definimos el valor máximo que puede tomar el PWM.
 #define PWM_MAX 255
 // Led conectado al PIN PB2 del micro donde está la salida PWM.
@@ -36,10 +36,10 @@ int main(void){
 	
 	
 	// -------------------------
-	// Iniciamos el módulo PWM.
+	// Iniciamos el modulo PWM.
 
 	// PWM de 8 bits, fase correcta.
-	// 8 bits nos darán 256 niveles de brillo.
+	// 8 bits nos daran 256 niveles de brillo.
 	TCCR0A |= (1<<WGM00);
 
 	// Limpiamos los bits OC0A/OC0B en el comparador.
@@ -53,6 +53,7 @@ int main(void){
 	// -------------------------
 	
 	uint8_t brillo1 = 0;
+	uint8_t brilloz = 20;
 	uint8_t brillo2= 63;
 	uint8_t brillo3 = 126;
 	uint8_t brillo4 = 189;
@@ -60,17 +61,7 @@ int main(void){
 	
 	
 	
-	void Wait()
-	{
-		uint8_t i;
-		for(i=0;i<10;i++)
-		{
-			_delay_loop_2(0);
-			_delay_loop_2(0);
-			_delay_loop_2(0);
-		}
-		
-	}
+	
 	
 	
 	
@@ -79,9 +70,11 @@ int main(void){
 	DDRB = 0xff;		/* make PORT as output port */
 	DDRC = 0xff;		/* make PORT as output port */
 	DDRD = 0xff;		/* make PORT as output port */
+	DDRK = 0xff;
 	PORTB = 0x00; // Ponemos todas las salidas a 0.
 	LED = 0;
 	LED1 = 0;
+	LED2 = 1;
 	
 	USART_init();        //Call the USART initialization code
 
@@ -94,7 +87,6 @@ int main(void){
 		{
 			LED |= (1<<PA0);	/* Turn ON LED */
 			LED |= (1<<PA1);	/* Turn ON LED */
-			USART_putstring("LED_ON");/* send status of LED i.e. LED ON */
 		}
 		else
 		
@@ -102,7 +94,6 @@ int main(void){
 		{
 			LED &= ~(1<<PA0);	/* Turn OFF LED */
 			LED &= ~(1<<PA1);	/* Turn OFF LED */
-			USART_putstring("LED_OFF"); /* send status of LED i.e. LED OFF */
 		}
 		
 		
@@ -112,7 +103,6 @@ int main(void){
 		{
 			OCR0A = brillo5;
 			LED |= (1<<PA3);	/* Turn ON LED */
-			USART_putstring("LED_ON");/* send status of LED i.e. LED ON */
 		}
 		else
 		
@@ -120,7 +110,6 @@ int main(void){
 		{
 			OCR0A = brillo1;
 			LED &= ~(1<<PA3);	/* Turn OFF LED */
-			USART_putstring("LED_OFF"); /* send status of LED i.e. LED OFF */
 		}
 		
 		
@@ -128,42 +117,36 @@ int main(void){
 		if(Data_in =='4')
 		{
 			LED |= (1<<PA4);	/* Turn ON LED */
-			USART_putstring("LED_ON");/* send status of LED i.e. LED ON */
 		}
 		else
 		
 		if(Data_in =='5')
 		{
 			LED &= ~(1<<PA4);	/* Turn OFF LED */
-			USART_putstring("LED_OFF"); /* send status of LED i.e. LED OFF */
 		}
 		
 		//LEDS GARAJE
 		if(Data_in =='6')
 		{
 			LED |= (1<<PA5);	/* Turn ON LED */
-			USART_putstring("LED_ON");/* send status of LED i.e. LED ON */
 		}
 		else
 		
 		if(Data_in =='7')
 		{
 			LED &= ~(1<<PA5);	/* Turn OFF LED */
-			USART_putstring("LED_OFF"); /* send status of LED i.e. LED OFF */
 		}
 		
 		//LEDS COCINA
 		if(Data_in =='8')
 		{
 			LED |= (1<<PA6);	/* Turn ON LED */
-			USART_putstring("LED_ON");/* send status of LED i.e. LED ON */
 		}
 		else
 		
 		if(Data_in =='9')
 		{
 			LED &= ~(1<<PA6);	/* Turn OFF LED */
-			USART_putstring("LED_OFF"); /* send status of LED i.e. LED OFF */
 		}
 		
 		
@@ -182,7 +165,7 @@ int main(void){
 			DDRB=(1<<PB5);   //PWM Pins as Out
 			
 			OCR1A=120;   //0 degree
-			Wait();
+			
 			ICR1=0;
 			
 			}else{
@@ -192,7 +175,7 @@ int main(void){
 				
 				ICR1=4999;
 				OCR1A=450;  //90 degree
-				Wait();
+				
 				
 				ICR1=0;
 				
@@ -205,14 +188,12 @@ int main(void){
 		if(Data_in =='C'||Data_in =='c')
 		{
 			LED |= (1<<PA7);	/* Turn ON LED */
-			USART_putstring("LED_ON");/* send status of LED i.e. LED ON */
 		}
 		else
 		
 		if(Data_in =='D'||Data_in =='d')
 		{
 			LED &= ~(1<<PA7);	/* Turn OFF LED */
-			USART_putstring("LED_OFF"); /* send status of LED i.e. LED OFF */
 		}
 		
 		
@@ -220,14 +201,12 @@ int main(void){
 		if(Data_in =='E'||Data_in =='e')
 		{
 			LED1 |= (1<<PC7);	/* Turn ON LED */
-			USART_putstring("LED_ON");/* send status of LED i.e. LED ON */
 		}
 		else
 		
 		if(Data_in =='F'||Data_in =='f')
 		{
 			LED1 &= ~(1<<PC7);	/* Turn OFF LED */
-			USART_putstring("LED_OFF"); /* send status of LED i.e. LED OFF */
 		}
 		
 		
@@ -237,15 +216,13 @@ int main(void){
 		{
 		
 		// Cargamos el valor de brillo en el comparador.
-		OCR0A = brillo1;
-		// Ponemos un retardo para ver el efecto.
+		OCR0A = brilloz;
 		}
 		
 		if(Data_in =='H')
 		{
 			// Cargamos el valor de brillo en el comparador.
 			OCR0A = brillo2;
-			// Ponemos un retardo para ver el efecto.
 			
 		}
 		
@@ -256,7 +233,6 @@ int main(void){
 
 			// Cargamos el valor de brillo en el comparador.
 			OCR0A = brillo3;
-			// Ponemos un retardo para ver el efecto.
 		}
 		
 		
@@ -265,7 +241,6 @@ int main(void){
 
 			// Cargamos el valor de brillo en el comparador.
 			OCR0A = brillo4;
-			// Ponemos un retardo para ver el efecto.
 		}
 		
 		if(Data_in =='K')
@@ -273,11 +248,29 @@ int main(void){
 
 			// Cargamos el valor de brillo en el comparador.
 			OCR0A = brillo5;
-			// Ponemos un retardo para ver el efecto.
 		}
 		
-	
+		//Next And --VOL
+		if(Data_in =='L')
+		{
+				
+				
+				LED2 &= ~(1<<PK0);	
+				
+				LED2 |= (1<<PK0);	
+
+		}else
+		
+		if(Data_in =='M')
+		{
+				LED2 |= (1<<PK0);	
+				LED2 &= ~(1<<PK0);	
+				
+				LED2 |= (1<<PK0);	
 			
+		}
+		
+				
 			
 	}
 
@@ -307,13 +300,6 @@ void USART_send( unsigned char data){
 
 }
 
-void USART_putstring(char* StringPtr){
-
-	while(*StringPtr != 0x00){
-		USART_send(*StringPtr);
-	StringPtr++;}
-
-}
 
 
 
