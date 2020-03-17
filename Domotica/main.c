@@ -9,7 +9,7 @@
 
 #define F_CPU 16000000UL
 #include <avr/io.h>
-#include <util/delay.h>
+
 
 #define BAUDRATE 9600
 #define BAUD_PRESCALLER (((F_CPU / (BAUDRATE * 16UL))) - 1)
@@ -56,17 +56,6 @@ int main(void){
 	
 	
 	
-	void Wait()
-	{
-		uint8_t i;
-		for(i=0;i<10;i++)
-		{
-			_delay_loop_2(0);
-			_delay_loop_2(0);
-			_delay_loop_2(0);
-		}
-		
-	}
 	
 	
 	
@@ -170,7 +159,7 @@ int main(void){
 			DDRB=(1<<PB5);   //PWM Pins as Out
 			
 			OCR1A=120;   //0 degree
-			Wait();
+			
 			ICR1=0;
 			
 			}else{
@@ -180,7 +169,7 @@ int main(void){
 				
 				ICR1=4999;
 				OCR1A=450;  //90 degree
-				Wait();
+				
 				
 				ICR1=0;
 				
